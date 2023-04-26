@@ -82,3 +82,17 @@ const displayMovements = movements => {
 };
 
 displayMovements(account1.movements);
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+// CREATING USER NAMES
+//(mutating original obj by creating new property of accounts{side effects})
+const createUserNames = accs => {
+  accs.forEach(acc => {
+    acc.userName = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name.at(0))
+      .join('');
+  });
+};
+createUserNames(accounts);
