@@ -81,7 +81,6 @@ const displayMovements = movements => {
   });
 };
 
-displayMovements(account1.movements);
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // CREATING USER NAMES
@@ -99,25 +98,27 @@ createUserNames(accounts);
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DISPLAY SUMMARY:INCOEM,OUTCOME,INTEREST
-const displaySummary = movements => {
+const displaySummary = acc => {
+  //movements parameter changed to acc for needing the whole account access in order to access the interest rate porperty cause every account has diffrent rate
   //income
-  const income = movements
+  const income = acc.movements
     .filter(mov => mov > 0)
-    .reduce((acc, currMov) => acc + currMov, movements.at(0));
+    .reduce((acc, currMov) => acc + currMov, acc.movements.at(0));
   labelSumIn.textContent = `${income}€`;
   // outcome
-  const outcome = movements
+  const outcome = acc.movements
     .filter(mov => mov < 0)
-    .reduce((acc, currMov) => acc + currMov, movements.at(0));
+    .reduce((acc, currMov) => acc + currMov, acc.movements.at(0));
   labelSumOut.textContent = `${Math.abs(outcome)}€`;
   //INTEREST: only calculate for diposite,on each diposit interest rate is 1.2%
-  const interest = movements
+  const interest = acc.movements
     .filter(mov => mov > 0)
-    .map(deposit => (deposit * 1.2) / 100)
-    .reduce((acc, dep) => acc + dep, movements.at(0));
+    .map(deposit => (deposit * acc.interestRate) / 100)
+    .filter(int => int >= 1)
+    .reduce((acc, dep) => acc + dep, 0);
   labelSumInterest.textContent = `${interest}€`;
 };
-displaySummary(account1.movements);
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DISPLAY BALANCE
@@ -125,4 +126,30 @@ const calcDisplayBalance = movements => {
   const balance = movements.reduce((acc, mov) => acc + mov, movements.at(0));
   labelBalance.textContent = `${balance}€`;
 };
-calcDisplayBalance(account1.movements);
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+// LOGIN FUNCTIONALITY
+let currentAcc;
+btnLogin.addEventListener('click', e => {
+  e.preventDefault();
+  currentAcc = accounts.find(acc => acc.userName === inputLoginUsername.value);
+  if (currentAcc?.pin === Number(inputLoginPin.value)) {
+    // welcome message
+    labelWelcome.textContent = `Welcome back! ${currentAcc.owner
+      .split(' ')
+      .at(0)}`;
+    // display ui
+    containerApp.style.opacity = 1;
+    // display movements
+    displayMovements(currentAcc.movements);
+    //display balance
+    calcDisplayBalance(currentAcc.movements);
+    //display summary
+    displaySummary(currentAcc);
+    // reseting inputs
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    // cursor blinking stopping or focus stopping ::: blur()
+    inputLoginPin.blur();
+  }
+});
