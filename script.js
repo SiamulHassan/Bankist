@@ -122,10 +122,26 @@ const displaySummary = acc => {
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DISPLAY BALANCE
-const calcDisplayBalance = movements => {
-  const balance = movements.reduce((acc, mov) => acc + mov, movements.at(0));
+const calcDisplayBalance = acc => {
+  const balance = acc.movements.reduce(
+    (acc, mov) => acc + mov,
+    acc.movements.at(0)
+  );
+  acc.balance = balance;
   labelBalance.textContent = `${balance}€`;
 };
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+// UPDATING UI
+const updateUI = currentAcc => {
+  // display movements
+  displayMovements(currentAcc.movements);
+  //display balance
+  calcDisplayBalance(currentAcc);
+  //display summary
+  displaySummary(currentAcc);
+};
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LOGIN FUNCTIONALITY
@@ -140,16 +156,34 @@ btnLogin.addEventListener('click', e => {
       .at(0)}`;
     // display ui
     containerApp.style.opacity = 1;
-    // display movements
-    displayMovements(currentAcc.movements);
-    //display balance
-    calcDisplayBalance(currentAcc.movements);
-    //display summary
-    displaySummary(currentAcc);
+    updateUI(currentAcc);
     // reseting inputs
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
     // cursor blinking stopping or focus stopping ::: blur()
     inputLoginPin.blur();
+  }
+});
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//TRANSFER BALANCE
+btnTransfer.addEventListener('click', e => {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.userName === inputTransferTo.value
+  );
+  inputTransferAmount.value = inputTransferTo.value = '';
+  if (
+    amount > 0 &&
+    currentAcc.balance >= amount &&
+    receiverAcc &&
+    receiverAcc.userName !== currentAcc.userName
+  ) {
+    //transfering money
+    currentAcc.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+    //updating UI
+    updateUI(currentAcc);
   }
 });
