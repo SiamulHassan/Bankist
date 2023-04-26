@@ -96,3 +96,11 @@ const createUserNames = accs => {
   });
 };
 createUserNames(accounts);
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+// DISPLAY BALANCE
+const calcDisplayBalance = movements => {
+  const balance = movements.reduce((acc, mov) => acc + mov, movements.at(0));
+  labelBalance.textContent = `${balance}€`;
+};
+calcDisplayBalance(account1.movements);
