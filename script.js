@@ -74,7 +74,7 @@ const displayMovements = movements => {
      <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-     <div class="movements__value">${mov}</div>
+     <div class="movements__value">${mov}€</div>
   </div>
 `;
     containerMovements.insertAdjacentHTML('afterbegin', accMov);
@@ -96,6 +96,28 @@ const createUserNames = accs => {
   });
 };
 createUserNames(accounts);
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+// DISPLAY SUMMARY:INCOEM,OUTCOME,INTEREST
+const displaySummary = movements => {
+  //income
+  const income = movements
+    .filter(mov => mov > 0)
+    .reduce((acc, currMov) => acc + currMov, movements.at(0));
+  labelSumIn.textContent = `${income}€`;
+  // outcome
+  const outcome = movements
+    .filter(mov => mov < 0)
+    .reduce((acc, currMov) => acc + currMov, movements.at(0));
+  labelSumOut.textContent = `${Math.abs(outcome)}€`;
+  //INTEREST: only calculate for diposite,on each diposit interest rate is 1.2%
+  const interest = movements
+    .filter(mov => mov > 0)
+    .map(deposit => (deposit * 1.2) / 100)
+    .reduce((acc, dep) => acc + dep, movements.at(0));
+  labelSumInterest.textContent = `${interest}€`;
+};
+displaySummary(account1.movements);
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DISPLAY BALANCE
