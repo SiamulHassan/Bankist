@@ -64,10 +64,12 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DISPLAY MOVEMENTS
-
-const displayMovements = movements => {
+const displayMovements = (movements, sorted = false) => {
   containerMovements.innerHTML = '';
-  movements.forEach((mov, i) => {
+  // sorted by ascending order
+  // slice is use for preventing the mutation of the original array
+  const mov = sorted ? movements.slice().sort((a, b) => a - b) : movements;
+  mov.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const accMov = `
     <div class="movements__row">
@@ -80,7 +82,6 @@ const displayMovements = movements => {
     containerMovements.insertAdjacentHTML('afterbegin', accMov);
   });
 };
-
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // CREATING USER NAMES
@@ -189,6 +190,22 @@ btnTransfer.addEventListener('click', e => {
 });
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
+//REQUEST LOAN
+btnLoan.addEventListener('click', e => {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  const isAnyTenPercent = currentAcc.movements.some(mov => mov >= mov / 10);
+  if (amount > 0 && isAnyTenPercent) {
+    // add positive movements to the acc
+    currentAcc.movements.push(amount);
+    //update ui
+    updateUI(currentAcc);
+    // reset input
+    inputLoanAmount.value = '';
+  }
+});
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
 //DELET ACCOUNT
 btnClose.addEventListener('click', e => {
   e.preventDefault();
@@ -205,4 +222,15 @@ btnClose.addEventListener('click', e => {
     // empty input fields
     inputCloseUsername.value = inputClosePin.value = '';
   }
+});
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//SORTING MOVEMENTS
+// here sorted is a state variable wich value will be reversed on onclick
+let sorted = false;
+btnSort.addEventListener('click', e => {
+  e.preventDefault();
+  displayMovements(currentAcc.movements, !sorted);
+  // reversing or reAssigning sorted var value
+  sorted = !sorted;
 });
