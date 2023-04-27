@@ -187,3 +187,22 @@ btnTransfer.addEventListener('click', e => {
     updateUI(currentAcc);
   }
 });
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//DELET ACCOUNT
+btnClose.addEventListener('click', e => {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAcc.userName &&
+    Number(inputClosePin.value) === currentAcc.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.userName === currentAcc.userName
+    );
+    accounts.splice(index, 1);
+    // logout:Hide UI
+    containerApp.style.opacity = 0;
+    // empty input fields
+    inputCloseUsername.value = inputClosePin.value = '';
+  }
+});
