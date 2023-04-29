@@ -116,7 +116,10 @@ nav {
   font-size: 1.4rem;
   color: #888;
 }
-
+.dateME {
+  font-size: 1.2rem;
+  color: #888;
+}
 .balance__value {
   font-size: 4.5rem;
   font-weight: 400;
