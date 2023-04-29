@@ -20,7 +20,8 @@ const account1 = {
     '2020-04-01T10:17:24.185Z',
   ],
   currency: 'EUR',
-  locale: 'pt-PT', // de-DE
+  locale: 'bn-BD',
+  // locale: 'pt-PT', // de-DE
 };
 
 const account2 = {
@@ -114,7 +115,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DAYS PASSED
-const formateMovDates = date => {
+const formateMovDates = (date, currAcc) => {
   const calcDaysPassed = (date1, date2) =>
     Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
   // akta date amra 'date parameter' theke pabo ar arekta date amra 'new Date' thke pabo
@@ -125,10 +126,11 @@ const formateMovDates = date => {
   // akhane uporer sob valu e lass than 7 But return use korar karone jokhon uporer 1 no ta true hobe se porer '*kono*' code e i ashbe na. that means Yesterday se read o korbe na. Same for rest of them even return `${movDate}/${movMonth}/${movYear}`;
   if (daysPassed <= 7) return `${daysPassed} days ago`;
   // console.log('from dayPassed', calcDaysPassed(new Date(), date));
-  const movDate = `${date.getDate()}`.padStart(2, 0);
-  const movMonth = `${date.getMonth() + 1}`.padStart(2, 0);
-  const movYear = date.getFullYear();
-  return `${movDate}/${movMonth}/${movYear}`;
+  // const movDate = `${date.getDate()}`.padStart(2, 0);
+  // const movMonth = `${date.getMonth() + 1}`.padStart(2, 0);
+  // const movYear = date.getFullYear();
+  // return `${movDate}/${movMonth}/${movYear}`;
+  return new Intl.DateTimeFormat(currAcc.locale).format(date);
 };
 
 /////////////////////////////////////////////////
@@ -144,7 +146,7 @@ const displayMovements = (currAcc, sorted = false) => {
   mov.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const now = new Date(currAcc.movementsDates[i]);
-    const movDates = formateMovDates(now);
+    const movDates = formateMovDates(now, currAcc);
     const accMov = `
     <div class="movements__row">
      <div class="movements__type movements__type--${type}">${
@@ -237,17 +239,30 @@ btnLogin.addEventListener('click', e => {
     // DATE FUNCTIONALITY ::: jonas way
     // day/month/year, hour:min
     const now = new Date();
-    const date = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth() + 1}`.padStart(2, 0);
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, 0);
-    const min = `${now.getMinutes()}`.padStart(2, 0);
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      // weekday: 'short',
+    };
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAcc.locale,
+      options
+    ).format(now);
+    // const date = `${now.getDate()}`.padStart(2, 0);
+    // const month = `${now.getMonth() + 1}`.padStart(2, 0);
+    // const year = now.getFullYear();
+    // const hour = `${now.getHours()}`.padStart(2, 0);
+    // const min = `${now.getMinutes()}`.padStart(2, 0);
     // for hour and minute time refresh na korle auto change hobe na...ajonno timer add kora lagbe ja pore kora hobe
-    labelDate.textContent = `${date}/${month}/${year}, ${hour}:${min}`;
-    const formatedDate = `${dayName[now.getDay()]}, ${
-      monName[now.getMonth()]
-    } ${now.getDate()}, ${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
-    labelDateME.textContent = formatedDate;
+    // labelDate.textContent = `${date}/${month}/${year}, ${hour}:${min}`;
+
+    // const formatedDate = `${dayName[now.getDay()]}, ${
+    //   monName[now.getMonth()]
+    // } ${now.getDate()}, ${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
+    // labelDateME.textContent = formatedDate;
     // reseting inputs
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
@@ -380,3 +395,25 @@ const calcDaysPassed = (date1, date2) =>
   Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
 const day1 = calcDaysPassed(new Date(2037, 3, 14), new Date(2037, 3, 28));
 console.log('day1', day1);
+
+/////////////////////////////////////////
+/// Internationalization
+const options = {
+  day: 'numeric', //indicates date
+  month: '2-digit', // numeric
+  weekday: 'short', // long (Friday), short (Fri), or narrow (F).
+  // date: 'numeric', ata kaj kore na ba dorkar nai
+  year: 'numeric',
+  hour: '2-digit', // numeric
+  minute: '2-digit', // numeric :: dont write min
+  // also available
+  // hour12: false,
+  // timeZone: 'America/Los_Angeles',
+  // timeZoneName: 'short',
+};
+const now = new Date();
+// const local = navigator.language;
+// console.log(local); // en-US
+const intl = new Intl.DateTimeFormat('bn-BD', options).format(now);
+// const intl = new Intl.DateTimeFormat('en-US', options).format(now);
+console.log(intl); // 4/29/2023
