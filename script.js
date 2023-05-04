@@ -19,7 +19,7 @@ const account1 = {
     '2020-01-28T09:15:04.904Z',
     '2020-04-01T10:17:24.185Z',
   ],
-  currency: 'EUR',
+  currency: 'BDT',
   locale: 'bn-BD',
   // locale: 'pt-PT', // de-DE
 };
@@ -132,11 +132,20 @@ const formateMovDates = (date, currAcc) => {
   // return `${movDate}/${movMonth}/${movYear}`;
   return new Intl.DateTimeFormat(currAcc.locale).format(date);
 };
-
+/////////////////////////////////////////////////
+// FUNCTION FOR Currency FORMATING
+const formatNum = (value, locale, currency) => {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+  }).format(value);
+};
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // DISPLAY MOVEMENTS
 const displayMovements = (currAcc, sorted = false) => {
+  // console.log(currAcc);
+
   containerMovements.innerHTML = '';
   // sorted by ascending order
   // slice is use for preventing the mutation of the original array
@@ -144,6 +153,7 @@ const displayMovements = (currAcc, sorted = false) => {
     ? currAcc.movements.slice().sort((a, b) => a - b)
     : currAcc.movements;
   mov.forEach((mov, i) => {
+    const formatMov = formatNum(mov, currAcc.locale, currAcc.currency);
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const now = new Date(currAcc.movementsDates[i]);
     const movDates = formateMovDates(now, currAcc);
@@ -153,7 +163,7 @@ const displayMovements = (currAcc, sorted = false) => {
       i + 1
     } ${type}</div>
     <div class="movements__date">${movDates}</div>
-     <div class="movements__value">${mov.toFixed(2)}€</div>
+     <div class="movements__value">${formatMov}</div>
   </div>
 `;
     containerMovements.insertAdjacentHTML('afterbegin', accMov);
@@ -182,19 +192,26 @@ const displaySummary = acc => {
   const income = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, currMov) => acc + currMov, acc.movements.at(0));
-  labelSumIn.textContent = `${income.toFixed(2)}€`;
+  // labelSumIn.textContent = `${income.toFixed(2)}€`;
+  labelSumIn.textContent = formatNum(income, acc.locale, acc.currency);
   // outcome
   const outcome = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, currMov) => acc + currMov, acc.movements.at(0));
-  labelSumOut.textContent = `${Math.abs(outcome)}€`;
+  // labelSumOut.textContent = `${Math.abs(outcome)}€`;
+  labelSumOut.textContent = formatNum(
+    Math.abs(outcome),
+    acc.locale,
+    acc.currency
+  );
   //INTEREST: only calculate for diposite,on each diposit interest rate is 1.2%
   const interest = acc.movements
     .filter(mov => mov > 0)
     .map(deposit => (deposit * acc.interestRate) / 100)
     .filter(int => int >= 1)
     .reduce((acc, dep) => acc + dep, 0);
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  // labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatNum(interest, acc.locale, acc.currency);
 };
 
 /////////////////////////////////////////////////
@@ -206,7 +223,8 @@ const calcDisplayBalance = acc => {
     acc.movements.at(0)
   );
   acc.balance = balance;
-  labelBalance.textContent = `${balance.toFixed(2)}€`;
+  //`${balance.toFixed(2)}€`;
+  labelBalance.textContent = formatNum(balance, acc.locale, acc.currency);
 };
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
