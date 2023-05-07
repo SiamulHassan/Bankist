@@ -145,7 +145,6 @@ const formatNum = (value, locale, currency) => {
 // DISPLAY MOVEMENTS
 const displayMovements = (currAcc, sorted = false) => {
   // console.log(currAcc);
-
   containerMovements.innerHTML = '';
   // sorted by ascending order
   // slice is use for preventing the mutation of the original array
@@ -237,10 +236,37 @@ const updateUI = currentAcc => {
   //display summary
   displaySummary(currentAcc);
 };
+/////////////// logout timer
+const logOutTimer = () => {
+  // set time to 5 min
+  let time = 10;
+  //call the tiemr every sec
+
+  // sec o hole logout
+  const tickTimer = () => {
+    //in each call print the remaining time
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(Math.trunc(time % 60)).padStart(2, 0);
+    labelTimer.textContent = `${min}:${sec}`;
+    // check if it reaches 0
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = 'login again';
+      containerApp.style.opacity = 0;
+    }
+    // decrease it
+    time--;
+  };
+  tickTimer();
+  //diffrent account at the same time time count korte thake. so kono account jokhon login korbe amra check korbo je kono timer on ache kina. on thakle seta off korbo. off(clearInterval) korar jonno OR chalu korar jonno 'timer' var ke dorkar. so we need to return it
+  let timer = setInterval(tickTimer, 1000);
+  return timer;
+};
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LOGIN FUNCTIONALITY
-let currentAcc;
+let currentAcc, timer;
 btnLogin.addEventListener('click', e => {
   e.preventDefault();
   currentAcc = accounts.find(acc => acc.userName === inputLoginUsername.value);
@@ -269,35 +295,19 @@ btnLogin.addEventListener('click', e => {
       currentAcc.locale,
       options
     ).format(now);
-    // const date = `${now.getDate()}`.padStart(2, 0);
-    // const month = `${now.getMonth() + 1}`.padStart(2, 0);
-    // const year = now.getFullYear();
-    // const hour = `${now.getHours()}`.padStart(2, 0);
-    // const min = `${now.getMinutes()}`.padStart(2, 0);
-    // for hour and minute time refresh na korle auto change hobe na...ajonno timer add kora lagbe ja pore kora hobe
-    // labelDate.textContent = `${date}/${month}/${year}, ${hour}:${min}`;
-
-    // const formatedDate = `${dayName[now.getDay()]}, ${
-    //   monName[now.getMonth()]
-    // } ${now.getDate()}, ${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
-    // labelDateME.textContent = formatedDate;
-    // reseting inputs
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
     // cursor blinking stopping or focus stopping ::: blur()
     inputLoginPin.blur();
-    ///////// MY WAY NOTE //////////////
-    // day,month 0 based tao Array te sajano hoise cause array o 0 based. ata jodi fri/jan/2023 ai formate e dekhate chaw tar jonne. But jodi 05/05/2023 ai formate e dekhate chaw taile day,month er shathe 1 jog kora lagbe
-    // console.log(now);
-    // console.log('day', now.getDay());
-    // console.log('date', now.getDate());
-    // console.log('month', now.getMonth());
-    // NOTE: only day and month 0 based >> day 0 is = sunday and month 0 is january.
+    // if already has a timer, we will clear it
+    if (timer) {
+      clearInterval(timer);
+    }
+    // jodi ager acc er timer thake taile clear hobe + 308 line er code new je login korbe tar timer count start korbe
+    // logOutTimer fun e timer ache. login korle amra faka var timer er value te logOutTimer call kortesi. so logOutTimer theke timer er value 'timer var e store thakbe.
+    timer = logOutTimer();
   }
 });
-/// fake login
-updateUI(account1);
-containerApp.style.opacity = 1;
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -324,6 +334,9 @@ btnTransfer.addEventListener('click', e => {
     receiverAcc.movementsDates.push(movDate);
     //updating UI
     updateUI(currentAcc);
+    // rest timer ::: it means clear the time and count form start agin
+    clearInterval(timer);
+    timer = logOutTimer();
   }
 });
 /////////////////////////////////////////////////
@@ -342,6 +355,8 @@ btnLoan.addEventListener('click', e => {
     updateUI(currentAcc);
     // reset input
     inputLoanAmount.value = '';
+    clearInterval(timer);
+    timer = logOutTimer();
   }
 });
 /////////////////////////////////////////////////
@@ -435,3 +450,53 @@ const now = new Date();
 const intl = new Intl.DateTimeFormat('bn-BD', options).format(now);
 // const intl = new Intl.DateTimeFormat('en-US', options).format(now);
 console.log(intl); // 4/29/2023
+//////////////////////////////
+// Clock
+setInterval(() => {
+  const now = new Date();
+  let hour = now.getHours();
+  let min = now.getMinutes();
+  let sec = now.getSeconds();
+  // console.log(`${hour}:${min}:${sec - 1}`);
+}, 1000);
+// Set the date we're counting down to
+let countDownDate = new Date('may 6, 2023 13:00:00').getTime();
+
+// Get today's date and time
+let today5 = new Date().getTime('may 5, 2023 13:00:00');
+
+// Find the distance between now and the count down date
+let distanceWithMiliSec = countDownDate - today5;
+console.log('distance', distanceWithMiliSec);
+// 1000 mili sec = 1 sec
+let second = distanceWithMiliSec / 1000;
+//let min = distanceWithMiliSec / 1000 * 60;
+//let hour = distanceWithMiliSec / 1000 * 60 * 60;
+//let day = distanceWithMiliSec / 1000 * 60 * 60 * 24;
+/////////////////////////// thinking another way
+// day ke vag korar pore ja oboshistho thakbe(%) seta holo hour
+// ...........let hour = distanceWithMiliSec % 1000 * 60 * 60 * 24;
+// hour ke vag korar pore ja oboshistho thakbe(%) seta holo min
+//...........let min = distanceWithMiliSec % 1000 * 60 * 60 ;(reminder of hours is gonna be min)
+// min ke vag korar pore ja oboshistho thakbe(%) seta holo sec
+//...........let sec = distanceWithMiliSec % 1000 * 60  ;(reminder of min is gonna be sec)
+
+// 60 sec = 1 min
+let minute = second / 60;
+// 60 min = 1 hour
+let hours = minute / 60;
+// 24h = 1 day
+let days = hours / 24;
+console.log('days', days);
+console.log('hours', hours);
+console.log('minute', minute);
+console.log('second', second);
+// // Update the count down every 1 second
+// var x = setInterval(function() {
+
+//   // Get today's date and time
+//   var now = new Date().getTime();
+
+//   // Find the distance between now and the count down date
+//   var distance = countDownDate - now;
+// })
